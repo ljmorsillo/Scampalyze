@@ -1,0 +1,5 @@
+C:\Code\Scampalyze\ConsoleBase\bin\Debug\ConsoleBase.dll
+C:\Code\Scampalyze\ConsoleBase\bin\Debug\ConsoleBase.pdb
+C:\Code\Scampalyze\ConsoleBase\obj\Debug\ConsoleEngine.csprojResolveAssemblyReference.cache
+C:\Code\Scampalyze\ConsoleBase\obj\Debug\ConsoleBase.dll
+C:\Code\Scampalyze\ConsoleBase\obj\Debug\ConsoleBase.pdb

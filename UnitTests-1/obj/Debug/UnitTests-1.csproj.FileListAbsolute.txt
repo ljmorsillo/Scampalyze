@@ -1,0 +1,6 @@
+C:\Code\Scampalyze\UnitTests-1\bin\Debug\UnitTests-1.dll
+C:\Code\Scampalyze\UnitTests-1\bin\Debug\UnitTests-1.pdb
+C:\Code\Scampalyze\UnitTests-1\bin\Debug\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll
+C:\Code\Scampalyze\UnitTests-1\obj\Debug\UnitTests-1.csprojResolveAssemblyReference.cache
+C:\Code\Scampalyze\UnitTests-1\obj\Debug\UnitTests-1.dll
+C:\Code\Scampalyze\UnitTests-1\obj\Debug\UnitTests-1.pdb

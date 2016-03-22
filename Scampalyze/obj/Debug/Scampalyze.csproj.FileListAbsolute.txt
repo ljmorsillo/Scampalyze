@@ -1,0 +1,8 @@
+C:\Code\Scampalyze\Scampalyze\bin\Debug\Scampalyze.exe.config
+C:\Code\Scampalyze\Scampalyze\bin\Debug\Scampalyze.exe
+C:\Code\Scampalyze\Scampalyze\bin\Debug\Scampalyze.pdb
+C:\Code\Scampalyze\Scampalyze\obj\Debug\Scampalyze.csprojResolveAssemblyReference.cache
+C:\Code\Scampalyze\Scampalyze\obj\Debug\Scampalyze.exe
+C:\Code\Scampalyze\Scampalyze\obj\Debug\Scampalyze.pdb
+C:\Code\Scampalyze\Scampalyze\bin\Debug\ConsoleBase.dll
+C:\Code\Scampalyze\Scampalyze\bin\Debug\ConsoleBase.pdb

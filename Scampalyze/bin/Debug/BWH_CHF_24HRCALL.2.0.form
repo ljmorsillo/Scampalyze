@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<info>
+		<name>bwh_chf_24hrcall</name>
+		<title>24-72 Hour Follow-up Call</title>
+		<scamp>chf</scamp>
+		<major>2</major>
+		<minor>0</minor>
+		<precedence>4</precedence>
+		<encountertype>503102040</encountertype>
+		<comments></comments>
+	</info>
+	<panels>
+		<panel>
+			<name>p_call</name>
+			<title>Follow-up Call</title>
+			<type>branch</type>
+			<tableclass>scamp</tableclass>
+			<elements>
+				<element>
+					<name>chf_attempt</name>
+					<type>radiolist</type>
+					<label>Attempt:</label>
+					<list>@chf_attempt</list>
+					<columns>4</columns>
+				</element>
+			</elements>
+		</panel>
+		<panel>
+			<name>p_edu</name>
+			<title>Patient Education at Discharge</title>
+			<type>branch</type>
+			<tableclass>scamp</tableclass>
+			<elements>
+				<element>
+					<name>chf_hf_med</name>
+					<type>radiolist</type>
+					<label>Are you in possession of your Heart Failure Medication?</label>
+					<list>@yes_no</list>
+					<columns>3</columns>
+				</element>
+				<element>
+					<name>chf_manage</name>
+					<type>radiolist</type>
+					<label>Do you administer/manage your own medication?</label>
+					<list>@yes_no</list>
+					<columns>3</columns>
+					<trigger>True</trigger>
+					<trigger_value>1</trigger_value>
+					<trigger_operator>=</trigger_operator>
+				</element>
+				<element>
+					<name>chf_adjust</name>
+					<type>radiolist</type>
+					<label>If yes, do you know how to adjust your medication accordingly in what may have been described to you as a Rescue Dose?</label>
+					<list>@yes_no</list>
+					<parent>chf_manage</parent>
+					<columns>3</columns>
+				</element>
+				<element>
+					<name>chf_when_rescue</name>
+					<type>radiolist</type>
+					<label>Do you know when to take your rescue dose?</label>
+					<list>@yes_no</list>
+					<parent>chf_manage</parent>
+					<columns>3</columns>
+				</element>
+				<element>
+					<name>chf_fu_7_dc</name>
+					<type>radiolist</type>
+					<label>Do you have a follow-up appointment scheduled within 7 days of discharge?</label>
+					<list>@yes_no</list>
+					<columns>3</columns>
+				</element>
+			</elements>
+		</panel>
+		<panel>
+			<name>p_symptoms</name>
+			<title>Symptoms</title>
+			<type>branch</type>
+			<tableclass>scamp</tableclass>
+			<elements>
+				<element>
+					<name>chf_sob</name>
+					<type>radiolist</type>
+					<label>Do you have more shortness of breath/dyspnea since hospital discharge?</label>
+					<list>@yes_no</list>
+					<columns>3</columns>
+				</element>
+				<element>
+					<name>chf_orthopnea</name>
+					<type>radiolist</type>
+					<label>Have you experienced orthopnea since hospital discharge?</label>
+					<list>@yes_no</list>
+					<columns>3</columns>
+				</element>
+				<element>
+					<name>chf_scale</name>
+					<type>radiolist</type>
+					<label>Do you have a scale at home?</label>
+					<list>@yes_no</list>
+					<columns>3</columns>
+					<trigger>True</trigger>
+					<trigger_value>1</trigger_value>
+					<trigger_operator>=</trigger_operator>
+				</element>
+				<element>
+					<name>chf_wt_today</name>
+					<type>radiolist</type>
+					<label>Did you weigh yourself today?</label>
+					<list>@yes_no</list>
+					<parent>chf_scale</parent>
+					<columns>3</columns>
+				</element>
+				<element>
+					<name>chf_gain</name>
+					<type>radiolist</type>
+					<label>Have you gained 3 or more lbs since discharge?</label>
+					<list>@yes_no</list>
+					<parent>chf_scale</parent>
+					<columns>3</columns>
+				</element>
+				<element>
+					<name>chf_symptom</name>
+					<type>checklist</type>
+					<columns>2</columns>
+					<label>If patient describes worsening symptoms, what action was taken by nurse?</label>
+					<list>@chf_symptom</list>
+					<trigger>True</trigger>
+					<trigger_value>6</trigger_value>
+					<trigger_operator>=</trigger_operator>
+				</element>
+				<element>
+					<name>chf_symptom_oth</name>
+					<type>textarea</type>
+					<label>Please specify:</label>
+					<parent>chf_symptom</parent>
+				</element>
+			</elements>
+		</panel>
+	</panels>
+</form>
