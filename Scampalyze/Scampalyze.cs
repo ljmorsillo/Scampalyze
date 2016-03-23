@@ -57,8 +57,8 @@ namespace Ircda.Scampalyze
         {
             if (args.Length < 2)
             {
-                Console.WriteLine("You might want to try some parameters.\n    Like filepath and count...");
-                Console.WriteLine("example: scampalyze count:'element' filepath:BWH_CHF_24HRCALL.2.0.form");
+                Console.WriteLine("You might want to try some parameters. Like filepath and countelement...");
+                Console.WriteLine("for example: scampalyze countelement:'form' filepath:BWH_CHF_24HRCALL.2.0.form");
                 return (ARG_STAT.ARGS_FAILED);
             }
             // get arguments
@@ -71,8 +71,8 @@ namespace Ircda.Scampalyze
                 .Select(s => s.Split(new[] { ':' }, 2))
                 .ToDictionary(s => s[0], s => s[1]);
 
-                if (parsedArgs.Keys.Contains("count"))
-                    TagToCount = parsedArgs["count"];
+                if (parsedArgs.Keys.Contains("countelement"))
+                    TagToCount = parsedArgs["countelement"];
                 if (parsedArgs.Keys.Contains("filepath"))
                     Path = parsedArgs["filepath"];
             }
