@@ -11,23 +11,16 @@ namespace Ircda.Scampalyze
 {
     class Scampalyze
     {
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
             
-            if (args.Length < 1)
+            ScampalyzeConsole scamper = new ScampalyzeConsole(args);
+            if (ScampalyzeConsole.ARG_STAT.ARGS_FAILED == scamper.Usage(args))
             {
-                Console.WriteLine("You might want to try some parameters.\n    Like filepath and count...");
+                return ((int)ScampalyzeConsole.ARG_STAT.ARGS_FAILED);
             }
-
-            ScampalyzeConsole scamper = new ScampalyzeConsole(args); 
-
-            XmlDocument doc = new XmlDocument();
-            doc.Load(scamper.Path);
-
-            // Get and display all the book titles.
-            XmlElement root = doc.DocumentElement;
-            XmlNodeList elemList = root.GetElementsByTagName(scamper.TagToCount);
-            Console.WriteLine("Count of <{0}>: {1}", scamper.TagToCount, elemList.Count);
+            scamper.Process();
+            return (0); // what should happy be? DOS, Linus or Windows
         }
 
         public void Count()
@@ -42,14 +35,36 @@ namespace Ircda.Scampalyze
 
         public string TagToCount { get; set; }
         public string Path { get; set; }
-  
-        public ScampalyzeConsole(string[] args) :base(args)
+
+        public ScampalyzeConsole(string[] args) : base(args)
         {
+        }
+        public override void Process()
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.Load(Path);
+
+            // Get and display all the book titles.
+            XmlElement root = doc.DocumentElement;
+            int count = 0;
+            if (TagToCount.Equals(root.LocalName))
+            { count++; }
+            XmlNodeList elemList = root.GetElementsByTagName(TagToCount);
+            count += elemList.Count;
+            Console.WriteLine("Count of <{0}>: {1}", TagToCount, count);
+        }
+        public override ARG_STAT Usage(string[] args)
+        {
+            if (args.Length < 2)
+            {
+                Console.WriteLine("You might want to try some parameters.\n    Like filepath and count...");
+                Console.WriteLine("example: scampalyze count:'element' filepath:BWH_CHF_24HRCALL.2.0.form");
+                return (ARG_STAT.ARGS_FAILED);
+            }
             // get arguments
             // format is: <command>:<thing to count> filepath:<pathnametofile> e.g.  
             //  count:<form> c:\
             //??? must be a better way to do this...
-            
             try
             {
                 var parsedArgs = args
@@ -64,11 +79,14 @@ namespace Ircda.Scampalyze
             catch (KeyNotFoundException exc)
             {
                 Console.WriteLine("You need a parameter: {0}", exc.Message);
+                return ARG_STAT.ARGS_FAILED;
             }
             catch (IndexOutOfRangeException exc)
             {
-                Console.WriteLine("You need a parameter name (like 'filepath:') {0}", exc.Message);
+                Console.WriteLine("You need a parameter name and a colon ':' (like 'filepath:') {0}", exc.Message);
+                return ARG_STAT.ARGS_FAILED;
             }
+            return ARG_STAT.ARGS_OK;
         }
     }
 }

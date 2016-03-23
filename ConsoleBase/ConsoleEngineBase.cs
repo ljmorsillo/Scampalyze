@@ -8,33 +8,34 @@ namespace Ircda.Consoleapp
 {
     public class ConsoleEngineBase
     {
+        public enum ARG_STAT {ARGS_OK, ARGS_FAILED};
         private IDictionary<string,string> parsedArgs;
         public ConsoleEngineBase(string[] args)
         {
          
         }
 
-        public void PreProcess()
+        public virtual void PreProcess()
         {
             throw new System.NotImplementedException();
         }
 
-        public void Process()
+        public virtual void Process()
         {
             throw new System.NotImplementedException();
         }
 
-        public void Usage()
+        public virtual ARG_STAT Usage(string[] args)
         {
             throw new System.NotImplementedException();
         }
 
-        public void Main()
+        public virtual void Main()
         {
             throw new System.NotImplementedException();
         }
 
-        public void PostProcess()
+        public virtual void PostProcess()
         {
             throw new System.NotImplementedException();
         }

@@ -4,3 +4,7 @@ C:\Code\Scampalyze\UnitTests-1\bin\Debug\Microsoft.VisualStudio.QualityTools.Uni
 C:\Code\Scampalyze\UnitTests-1\obj\Debug\UnitTests-1.csprojResolveAssemblyReference.cache
 C:\Code\Scampalyze\UnitTests-1\obj\Debug\UnitTests-1.dll
 C:\Code\Scampalyze\UnitTests-1\obj\Debug\UnitTests-1.pdb
+C:\Code\Scampalyze\UnitTests-1\bin\Debug\Scampalyze.exe
+C:\Code\Scampalyze\UnitTests-1\bin\Debug\ConsoleBase.dll
+C:\Code\Scampalyze\UnitTests-1\bin\Debug\Scampalyze.pdb
+C:\Code\Scampalyze\UnitTests-1\bin\Debug\ConsoleBase.pdb

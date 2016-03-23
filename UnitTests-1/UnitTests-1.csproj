@@ -53,6 +53,16 @@
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ConsoleBase\ConsoleEngine.csproj">
+      <Project>{2923b964-f62d-44a2-aa02-75ee11bb4994}</Project>
+      <Name>ConsoleEngine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Scampalyze\Scampalyze.csproj">
+      <Project>{f6ab4e79-eb7a-4562-b907-3353bcf78da0}</Project>
+      <Name>Scampalyze</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>
