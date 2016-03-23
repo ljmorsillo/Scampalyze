@@ -3,8 +3,10 @@ Scampalyze is a simple tool to check characteristics of a an XML formatted SCAMP
 ## Example Command Line
 	with output
 ...
+
 C:\Code\Scampalyze\Scampalyze\bin\Debug>Scampalyze.exe count:"element" filepath:BWH_CHF_24HRCALL.2.0.form
 Count of <element>: 13
+
 ...
 ## Current parameters
 Command | Description of parameters
