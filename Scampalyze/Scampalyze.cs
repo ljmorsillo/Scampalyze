@@ -19,8 +19,10 @@ namespace Ircda.Scampalyze
             {
                 return ((int)ScampalyzeConsole.ARG_STAT.ARGS_FAILED);
             }
+            scamper.PreProcess();
             scamper.Process();
-            return (0); // what should happy be? DOS, Linus or Windows
+            //??? What should happy result be? DOS, Linus or Windows Convention
+            return (0); 
         }
 
         public void Count()
@@ -39,11 +41,15 @@ namespace Ircda.Scampalyze
         public ScampalyzeConsole(string[] args) : base(args)
         {
         }
+        public override void PreProcess()
+        {
+            base.PreProcess();
+        }
         public override void Process()
         {
             XmlDocument doc = new XmlDocument();
             doc.Load(Path);
-
+           
             // Get and display all the book titles.
             XmlElement root = doc.DocumentElement;
             int count = 0;
@@ -52,6 +58,23 @@ namespace Ircda.Scampalyze
             XmlNodeList elemList = root.GetElementsByTagName(TagToCount);
             count += elemList.Count;
             Console.WriteLine("Count of <{0}>: {1}", TagToCount, count);
+            //!!! Horrible POC (proof of concept or piece of c$&@ code...
+            DWCommand.Connection = DWConnection;
+            System.Data.SqlClient.SqlDataReader DWReader;
+            ///Inner text is not clear, change xpath...
+            string formname = root.SelectSingleNode("info/name").InnerText;
+            if (TagToCount.ToLower().Equals("element"))
+            {
+                StringBuilder commandString = new StringBuilder();
+                    DWCommand.CommandText = commandString.AppendFormat("SELECT count(*) FROM vwFormElements WHERE (formname = '{0}');",formname).ToString();
+                DWConnection.Open();
+                //DWCommand.Connection.Open();
+                DWReader = DWCommand.ExecuteReader();
+                int columns = DWReader.FieldCount;
+                bool Ok = DWReader.Read();
+                int numForms = (int)DWReader.GetValue(0); //!!! horrible assumptions here
+                DWConnection.Close();
+            }
         }
         public override ARG_STAT Usage(string[] args)
         {
@@ -64,7 +87,7 @@ namespace Ircda.Scampalyze
             // get arguments
             // format is: <command>:<thing to count> filepath:<pathnametofile> e.g.  
             //  count:<form> c:\
-            //??? must be a better way to do this...
+            //??? There are better ways to do this...make less brittle
             try
             {
                 var parsedArgs = args

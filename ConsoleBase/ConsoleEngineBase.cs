@@ -3,13 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data.SqlClient;
 
 namespace Ircda.Consoleapp
 {
     public class ConsoleEngineBase
     {
         public enum ARG_STAT {ARGS_OK, ARGS_FAILED};
-        private IDictionary<string,string> parsedArgs;
+        protected IDictionary<string,string> parsedArgs;
+        protected SqlConnection DWConnection;
+        protected SqlCommand DWCommand;
+        protected SqlDataReader DWDataReader;
+
         public ConsoleEngineBase(string[] args)
         {
          
@@ -17,7 +22,12 @@ namespace Ircda.Consoleapp
 
         public virtual void PreProcess()
         {
-            throw new System.NotImplementedException();
+            ///!!! Just for intial test, parameterize
+            //Does the ConnStringBuider buy us anything?
+            SqlConnectionStringBuilder connInfo = 
+                new SqlConnectionStringBuilder("Server=irish.ircda.org;Database=DataWarehouse;User Id=sa;Password=1!LIwumCL@;");
+            DWConnection = new SqlConnection(connInfo.ConnectionString);
+            DWCommand = new SqlCommand();
         }
 
         public virtual void Process()
