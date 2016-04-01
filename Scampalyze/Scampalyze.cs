@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Ircda.Consoleapp;
+using System.Data.SqlClient;
 
 namespace Ircda.Scampalyze
 {
@@ -21,7 +22,8 @@ namespace Ircda.Scampalyze
             }
             scamper.PreProcess();
             scamper.Process();
-            //??? What should happy result be? DOS, Linus or Windows Convention
+            
+            // Windows happy return 
             return (0); 
         }
 
@@ -32,6 +34,16 @@ namespace Ircda.Scampalyze
     }
     public class ScampalyzeConsole : ConsoleEngineBase
     {
+        //Arguments - identifier, value
+        const string FORM_FILEPATH__ARG = "filepath";
+        const string CONNECTION_ARG = "connection";
+        const string ELEMENT_TO_COUNT_ARG = "countelement";
+
+        ///!!! Inner text? is not clear, change xpath...
+        const string XPATH_SDF_NAME = "info/name";
+
+        const string SELECT_ELEMENTS_TEMPLATE = "SELECT count(*) FROM vwFormElements WHERE (formname = '{0}');";
+
         private string tagToCount = String.Empty;
         private string path = String.Empty;
 
@@ -47,13 +59,13 @@ namespace Ircda.Scampalyze
         }
         public override void Process()
         {
-            try {
+            try
+            {
                 int formCount = countFromForm(Path, TagToCount);
-                ///!!! Inner text is not clear, change xpath...
-                string formname = getFormRoot(Path).SelectSingleNode("info/name").InnerText;
+                string formname = getFormRoot(Path).SelectSingleNode(XPATH_SDF_NAME).InnerText;
                 int DWcount = countFromDW(formname, TagToCount);
                 Console.WriteLine("Count of {0} -> Form: {1}, DW: {2}", TagToCount, formCount, DWcount);
-                Console.WriteLine("{0}", (formCount == DWcount) ? "Success" : "Failure");
+                Console.WriteLine("{0}", (formCount == DWcount && formCount > 0) ? "Success" : "Failure");
             }
             catch (Exception exc)
             {
@@ -66,26 +78,46 @@ namespace Ircda.Scampalyze
         }
         public override ARG_STAT Usage(string[] args)
         {
-            if (args.Length < 2)
+            // get arguments
+            // general format is: <argument name>:<argument value> 
+            // e.g. filepath:"c:\data\flah.form" count:'element, elements, panel" 
+            // 
+            Dictionary<string, string> options = new Dictionary<string, string>
             {
+                {ELEMENT_TO_COUNT_ARG,"A list of strings with the XML elements in the form to count, such as 'panel','elements' " },
+                {FORM_FILEPATH__ARG,"The path to the .form (SDF) file" },
+                {CONNECTION_ARG, "The connection string for the DW database" },
+                {"scampalyze","This performs some consistency checks on a SCAMP sdf (.form) and validates it against what is loaded in the data warehouse." }
+            };
+            if (args.Length < 3)
+            {
+                Console.WriteLine("SCAMPALYZE!  {0}", options["scampalyze"]);
                 Console.WriteLine("You might want to try some parameters. Like filepath and countelement...");
+
+                foreach (string s in options.Keys.TakeWhile(o => o != "scampalyze"))
+                {
+                    Console.WriteLine("{0}: {1}", s, options[s]);
+                }
                 Console.WriteLine("for example: scampalyze countelement:'form' filepath:BWH_CHF_24HRCALL.2.0.form");
                 return (ARG_STAT.ARGS_FAILED);
             }
-            // get arguments
-            // format is: <command>:<thing to count> filepath:<pathnametofile> e.g.  
-            //  count:<form> c:\
-            //??? There are better ways to do this...make less brittle
+
             try
             {
                 var parsedArgs = args
                 .Select(s => s.Split(new[] { ':' }, 2))
-                .ToDictionary(s => s[0], s => s[1]);
+                .ToDictionary(s => s[0].ToLower(), s => s[1]);
 
-                if (parsedArgs.Keys.Contains("countelement"))
-                    TagToCount = parsedArgs["countelement"];
-                if (parsedArgs.Keys.Contains("filepath"))
-                    Path = parsedArgs["filepath"];
+                if (parsedArgs.Keys.Contains(CONNECTION_ARG))
+                {
+                    SqlConnectionStringBuilder connInfo =
+                    new SqlConnectionStringBuilder(parsedArgs[CONNECTION_ARG]);
+                    DWConnection = new SqlConnection(connInfo.ConnectionString);
+                }
+                if (parsedArgs.Keys.Contains(ELEMENT_TO_COUNT_ARG))
+                    TagToCount = parsedArgs[ELEMENT_TO_COUNT_ARG];
+                if (parsedArgs.Keys.Contains(FORM_FILEPATH__ARG))
+                    Path = parsedArgs[FORM_FILEPATH__ARG];
             }
             catch (KeyNotFoundException exc)
             {
@@ -94,7 +126,7 @@ namespace Ircda.Scampalyze
             }
             catch (IndexOutOfRangeException exc)
             {
-                Console.WriteLine("You need a parameter name and a colon ':' (like 'filepath:') {0}", exc.Message);
+                Console.WriteLine("You need a known parameter name and a colon ':' (like 'filepath:') {0}", exc.Message);
                 return ARG_STAT.ARGS_FAILED;
             }
             return ARG_STAT.ARGS_OK;
@@ -118,7 +150,7 @@ namespace Ircda.Scampalyze
             if (TagToCount.ToLower().Equals("element"))
             {
                 StringBuilder commandString = new StringBuilder();
-                DWCommand.CommandText = commandString.AppendFormat("SELECT count(*) FROM vwFormElements WHERE (formname = '{0}');", formname).ToString();
+                DWCommand.CommandText = commandString.AppendFormat(SELECT_ELEMENTS_TEMPLATE, formname).ToString();
                 DWConnection.Open();
                 numForms = (int)DWCommand.ExecuteScalar();
                 DWConnection.Close();

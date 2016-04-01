@@ -22,11 +22,7 @@ namespace Ircda.Consoleapp
 
         public virtual void PreProcess()
         {
-            ///!!! Just for intial test, parameterize
-            //Does the ConnStringBuider buy us anything?
-            SqlConnectionStringBuilder connInfo = 
-                new SqlConnectionStringBuilder("Server=irish.ircda.org;Database=DataWarehouse;User Id=sa;Password=1!LIwumCL@;");
-            DWConnection = new SqlConnection(connInfo.ConnectionString);
+                    
             DWCommand = new SqlCommand();
         }
 
