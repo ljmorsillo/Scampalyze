@@ -12,9 +12,15 @@ namespace Ircda.Scampalyze
 {
     class Scampalyze
     {
+        /// <summary>
+        /// Entry Point for the scamperlyze application
+        /// Creates a Scampalyze object that does the work
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
         static int Main(string[] args)
-        {
-            
+        {     
+                  
             ScampalyzeConsole scamper = new ScampalyzeConsole(args);
             if (ScampalyzeConsole.ARG_STAT.ARGS_FAILED == scamper.Usage(args))
             {
@@ -22,7 +28,9 @@ namespace Ircda.Scampalyze
             }
             scamper.PreProcess();
             scamper.Process();
-            
+
+            Console.ReadKey();
+
             // Windows happy return 
             return (0); 
         }
@@ -38,6 +46,15 @@ namespace Ircda.Scampalyze
         const string FORM_FILEPATH__ARG = "filepath";
         const string CONNECTION_ARG = "connection";
         const string ELEMENT_TO_COUNT_ARG = "countelement";
+        /// <remarks>options defines the details of the arguments, like the help text for each</remarks>
+        //??? Make nested type defining type and validation criteria?
+        Dictionary<string, string> options = new Dictionary<string, string>
+            {
+                {ELEMENT_TO_COUNT_ARG,"A list of strings with the XML elements in the form to count, such as 'panel','elements' " },
+                {FORM_FILEPATH__ARG,"The path to the .form (SDF) file" },
+                {CONNECTION_ARG, "The connection string for the DW database" },
+                {"scampalyze","This performs some consistency checks on a SCAMP sdf (.form) and validates it against what is loaded in the data warehouse." }
+            };
 
         ///!!! Inner text? is not clear, change xpath...
         const string XPATH_SDF_NAME = "info/name";
@@ -47,48 +64,65 @@ namespace Ircda.Scampalyze
         private string tagToCount = String.Empty;
         private string path = String.Empty;
 
-        public string TagToCount { get; set; }
-        public string Path { get; set; }
+        //Database related items
+        protected SqlConnection DWConnection;
+        protected SqlCommand DWCommand;
+        protected SqlDataReader DWDataReader;
 
+        //public string TagToCount { get; set; }
+        public string Path { get; set; }
+        private List<string> tagsToCount;
+
+
+
+        //never should create without arg list
+        /// <summary>
+        /// Does the work
+        /// </summary>
         public ScampalyzeConsole(string[] args) : base(args)
         {
+            DWCommand = new SqlCommand();
         }
+
+        /// <summary>
+        /// In preparation for the processing
+        /// </summary>
         public override void PreProcess()
         {
             base.PreProcess();
         }
+        /// <summary>
+        /// Do the primary work of the console app
+        /// </summary>
         public override void Process()
         {
             try
             {
-                int formCount = countFromForm(Path, TagToCount);
-                string formname = getFormRoot(Path).SelectSingleNode(XPATH_SDF_NAME).InnerText;
-                int DWcount = countFromDW(formname, TagToCount);
-                Console.WriteLine("Count of {0} -> Form: {1}, DW: {2}", TagToCount, formCount, DWcount);
-                Console.WriteLine("{0}", (formCount == DWcount && formCount > 0) ? "Success" : "Failure");
+                foreach (string tagToCount in tagsToCount)
+                {
+                    XmlElement root = getFormRoot(path);
+                    int formCount = countFromForm(root, tagToCount);
+                    string formname = root.SelectSingleNode(XPATH_SDF_NAME).InnerText;
+                    int DWcount = countFromDW(formname, tagToCount);
+                    //??? Do we really want console output here....
+                    Console.WriteLine("Count of {0} -> Form: {1}, DW: {2}", tagToCount, formCount, DWcount);
+                    Console.WriteLine("{0}", (formCount == DWcount && formCount > 0) ? "Success" : "Failure");
+                }
             }
             catch (Exception exc)
             {
                 Console.WriteLine("Problem: {0}, please Fix: {1}.\nDetails:\n {2}", exc.Message, exc.Source, exc.ToString());
             }
-            finally
-            {
-                Console.ReadKey();
-            }
         }
+        /// <summary>
+        /// Parse the commandline
+        /// </summary>
         public override ARG_STAT Usage(string[] args)
         {
             // get arguments
             // general format is: <argument name>:<argument value> 
             // e.g. filepath:"c:\data\flah.form" count:'element, elements, panel" 
             // 
-            Dictionary<string, string> options = new Dictionary<string, string>
-            {
-                {ELEMENT_TO_COUNT_ARG,"A list of strings with the XML elements in the form to count, such as 'panel','elements' " },
-                {FORM_FILEPATH__ARG,"The path to the .form (SDF) file" },
-                {CONNECTION_ARG, "The connection string for the DW database" },
-                {"scampalyze","This performs some consistency checks on a SCAMP sdf (.form) and validates it against what is loaded in the data warehouse." }
-            };
             if (args.Length < 3)
             {
                 Console.WriteLine("SCAMPALYZE!  {0}", options["scampalyze"]);
@@ -115,7 +149,11 @@ namespace Ircda.Scampalyze
                     DWConnection = new SqlConnection(connInfo.ConnectionString);
                 }
                 if (parsedArgs.Keys.Contains(ELEMENT_TO_COUNT_ARG))
-                    TagToCount = parsedArgs[ELEMENT_TO_COUNT_ARG];
+                {
+                    tagsToCount = parsedArgs[ELEMENT_TO_COUNT_ARG].Split(',').ToList();
+                }
+                //TagToCount = tagsToCount.First();
+
                 if (parsedArgs.Keys.Contains(FORM_FILEPATH__ARG))
                     Path = parsedArgs[FORM_FILEPATH__ARG];
             }
@@ -131,10 +169,14 @@ namespace Ircda.Scampalyze
             }
             return ARG_STAT.ARGS_OK;
         }
-
-        private int countFromForm(string path, string tagToCount)
+        /// <summary>
+        /// Get the count of tagToCount in xml form denoted by path
+        /// </summary>
+        /// <param name="root">XML document root of form</param>
+        /// <param name="tagToCount">The tag to count</param>
+        /// <returns>number of occurences</returns>
+        private int countFromForm(XmlElement root, string tagToCount)
         {
-            XmlElement root = getFormRoot(path);
             int count = 0;
             if (tagToCount.Equals(root.LocalName))
             { count++; }
@@ -143,14 +185,28 @@ namespace Ircda.Scampalyze
             return count;
         }
 
+        /// <summary>
+        /// Get the count of elementToCount in the DW for formname
+        /// </summary>
+        /// <param name="elementToCount">which element to count</param>
+        /// <param name="formname"><![CDATA[<form><name>]]> element</param>
+        /// <returns>number of occurences</returns>
         private int countFromDW(string formname, string elementToCount)
         {
             int numForms = 0;
             DWCommand.Connection = DWConnection;
-            if (TagToCount.ToLower().Equals("element"))
+            StringBuilder commandString = new StringBuilder();
+
+            switch (elementToCount.ToLower())
             {
-                StringBuilder commandString = new StringBuilder();
-                DWCommand.CommandText = commandString.AppendFormat(SELECT_ELEMENTS_TEMPLATE, formname).ToString();
+                case "element":
+                    DWCommand.CommandText = commandString.AppendFormat(SELECT_ELEMENTS_TEMPLATE, formname).ToString();
+                    break;
+                case "panel":
+                    break;
+            }
+            if (DWCommand.CommandText.Length > 0)
+            {
                 DWConnection.Open();
                 numForms = (int)DWCommand.ExecuteScalar();
                 DWConnection.Close();

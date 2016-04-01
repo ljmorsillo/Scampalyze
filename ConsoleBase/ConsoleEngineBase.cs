@@ -11,9 +11,11 @@ namespace Ircda.Consoleapp
     {
         public enum ARG_STAT {ARGS_OK, ARGS_FAILED};
         protected IDictionary<string,string> parsedArgs;
-        protected SqlConnection DWConnection;
-        protected SqlCommand DWCommand;
-        protected SqlDataReader DWDataReader;
+
+        //Never Create without arguments
+        private ConsoleEngineBase()
+        {
+        }
 
         public ConsoleEngineBase(string[] args)
         {
@@ -21,9 +23,8 @@ namespace Ircda.Consoleapp
         }
 
         public virtual void PreProcess()
-        {
-                    
-            DWCommand = new SqlCommand();
+        {            
+            
         }
 
         public virtual void Process()
